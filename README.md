@@ -1,5 +1,5 @@
 # Knightmare 
-## Robotics Exploit Framework
+## Autonomous Robotics Exploit Framework
 
 <p align="center">
   <img src="./images/ICARUS.gif" alt="Dancing Robot">

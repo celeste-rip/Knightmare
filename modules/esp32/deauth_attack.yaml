@@ -1,0 +1,11 @@
+name: ESP32 Deauth Attack
+platform: esp32
+icarus: C
+description: Deauthenticates a target MAC address using ESP32 Marauder.
+type: exploit
+options:
+  target_mac: "AA:BB:CC:DD:EE:FF"
+payloads:
+  - deauth_target
+  - deauth_all
+  - deauth_broadcast 

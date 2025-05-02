@@ -1,0 +1,10 @@
+name: ESP32 Beacon Spammer
+platform: esp32
+icarus: A
+description: Broadcasts fake SSIDs to disrupt nearby WiFi scanners.
+type: exploit
+options:
+  ssid: "KnightmareNet"
+payloads:
+  - beacon_spam
+  

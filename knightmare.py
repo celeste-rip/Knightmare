@@ -7,15 +7,21 @@ import sys
 import yaml
 import serial
 import serial.tools.list_ports
+from datetime import datetime
 
 MODULE_PATH = "modules"
+LOG_PATH = "logs/knightmare.log"
 
 class KnightmareCLI(cmd.Cmd):
     intro = """
-╔═╗┬┌─┬┌─┐┌┬┐┬─┐┌─┐┌─┐┬─┐
-╠═╣├┴┐││ │ │ ├┬┘│ ││ │├┬┘
-╩ ╩┴ ┴┴└─┘ ┴ ┴└─└─┘└─┘┴└─
 
+██╗  ██╗███╗   ██╗██╗ ██████╗ ██╗  ██╗████████╗███╗   ███╗ █████╗ ██████╗ ███████╗
+██║ ██╔╝████╗  ██║██║██╔════╝ ██║  ██║╚══██╔══╝████╗ ████║██╔══██╗██╔══██╗██╔════╝
+█████╔╝ ██╔██╗ ██║██║██║  ███╗███████║   ██║   ██╔████╔██║███████║██████╔╝█████╗  
+██╔═██╗ ██║╚██╗██║██║██║   ██║██╔══██║   ██║   ██║╚██╔╝██║██╔══██║██╔══██╗██╔══╝  
+██║  ██╗██║ ╚████║██║╚██████╔╝██║  ██║   ██║   ██║ ╚═╝ ██║██║  ██║██║  ██║███████╗
+╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝
+                                                                        
 Knightmare Framework v0.1 (Tengu Edition)
 Drones | Robotics | IoT | RF Systems | SDR
 ICARUS-Aligned Offensive Toolkit
@@ -30,7 +36,10 @@ Type 'help' to begin your hunt.
         self.module_config = None
         self.serial_port = None
         self.serial_connections = []
+        self.logging_enabled = False
         self.detect_serial_devices()
+        if not os.path.exists("logs"):
+            os.makedirs("logs")
 
     def detect_serial_devices(self):
         ports = serial.tools.list_ports.comports()
@@ -152,8 +161,28 @@ Type 'help' to begin your hunt.
             print(f"Sent command: {command.strip()}")
             response = self.serial_port.readline().decode().strip()
             print(f"Response: {response}")
+            if self.logging_enabled:
+                with open(LOG_PATH, "a") as log_file:
+                    log_file.write(f"[{datetime.now()}] {payload}: {response}\n")
         except Exception as e:
             print(f"Error executing payload: {e}")
+
+    def do_log(self, line):
+        """log enable|disable|show: Control or view Knightmare logs"""
+        if line == "enable":
+            self.logging_enabled = True
+            print("Logging enabled.")
+        elif line == "disable":
+            self.logging_enabled = False
+            print("Logging disabled.")
+        elif line == "show":
+            if os.path.exists(LOG_PATH):
+                with open(LOG_PATH, "r") as log_file:
+                    print(log_file.read())
+            else:
+                print("No log file found.")
+        else:
+            print("Usage: log enable | log disable | log show")
 
     def do_icarus(self, line):
         """icarus <pillar>: Display context or guidance for ICARUS pillars (I, C, A, R, U, S)"""

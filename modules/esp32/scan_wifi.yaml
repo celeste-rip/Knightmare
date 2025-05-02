@@ -1,0 +1,11 @@
+name: ESP32 WiFi Scanner
+platform: esp32
+icarus: I
+description: Uses the ESP32 Marauder to scan for nearby WiFi networks.
+type: exploit
+options:
+  interface: uart
+  baudrate: 115200
+payloads:
+  - scan_wifi
+  - scan_wifi_advanced

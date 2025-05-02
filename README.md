@@ -86,7 +86,7 @@ fpm -s dir -t deb -n knightmare -v 0.1 knightmare/
 ## 💡 Credits
 - Built by Lexie Thach (@Lexicon121)
 - ESP32 Marauder by @justcallmekoko
-- Inspired by Metasploit and ATT&CK
+- Inspired by Metasploit, SPARTA and ATT&CK
 
 ---
 

@@ -1,2 +1,7 @@
-pyyaml
+flask
+opencv-python
 pyserial
+pyyaml
+flask-socketio
+flask-cors
+flask-restful

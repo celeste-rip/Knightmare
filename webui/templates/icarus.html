@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>ICARUS Pillars</h2>
+<ul>
+  {% for key, desc in pillars.items() %}
+    <li><strong>{{ key }}</strong>: {{ desc }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}

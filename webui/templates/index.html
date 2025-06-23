@@ -1,0 +1,17 @@
+<!-- webui/templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Knightmare Web Control</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h2>Knightmare - Tengu Web Control Panel</h2>
+  <img src="/video_feed" width="640" height="480"><br><br>
+  <form method="POST" action="/command">
+    <input type="text" name="cmd" placeholder="Enter Knightmare Command (e.g., scan_wifi)">
+    <button type="submit">Send</button>
+  </form>
+</body>
+</html>

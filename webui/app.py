@@ -1,52 +1,45 @@
-from flask import Flask, render_template, request, redirect, Response
-import serial
-import os
+# webui/app.py
+import cv2
+from flask import Response
+from flask import Flask, request, render_template, redirect, url_for
+from core.knightmare_controller import KnightmareController
 
 app = Flask(__name__)
-LOG_FILE = "logs/knightmare.log"
-SERIAL_PORT = "/dev/ttyUSB0"  # Update for Windows: COM3 or similar
-BAUD_RATE = 115200
-
-pillars = {
-    "I": "Integrated Threat Intelligence",
-    "C": "Cybersecurity TTPs",
-    "A": "Aerial and Aquatic Defense",
-    "R": "Robotic System Resilience",
-    "U": "Unmanned System Operations",
-    "S": "Systems Monitoring & Response"
-}
+knightmare = KnightmareController()
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    log_output = open(LOG_FILE).read() if os.path.exists(LOG_FILE) else "No logs yet."
+    output = None
     if request.method == "POST":
-        cmd = request.form.get("cmd")
-        try:
-            with serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=2) as ser:
-                ser.write((cmd + "\n").encode())
-                response = ser.readline().decode().strip()
-            with open(LOG_FILE, "a") as f:
-                f.write(f"[CMD] {cmd} -> {response}\n")
-            log_output = response
-        except Exception as e:
-            log_output = f"Error: {e}"
-    return render_template("index.html", log_output=log_output)
+        cmd = request.form["cmd"]
+        output = knightmare.run_payload(cmd)
+    return render_template("index.html", modules=knightmare.list_modules(), output=output)
 
-@app.route("/icarus")
-def icarus():
-    return render_template("icarus.html", pillars=pillars)
+@app.route("/load_module/<path>")
+def load_module(path):
+    msg = knightmare.load_module(path)
+    return redirect(url_for("index"))
 
+@app.route("/connect", methods=["POST"])
+def connect():
+    device = request.form["device"]
+    msg = knightmare.connect(device)
+    return redirect(url_for("index"))
+@app.route("/serial_devices")
+def serial_devices():
+    devices = knightmare.detect_serial_devices()
+    return render_template("serial_devices.html", devices=devices)
+def generate_video():
+    cap = cv2.VideoCapture(0)  # Use 0 for default webcam (change index for other cams)
+    while True:
+        success, frame = cap.read()
+        if not success:
+            break
+        _, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 @app.route("/video_feed")
 def video_feed():
-    def gen():
-        import cv2
-        cam = cv2.VideoCapture(0)
-        while True:
-            ret, frame = cam.read()
-            if not ret:
-                break
-            _, buffer = cv2.imencode('.jpg', frame)
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
-        cam.release()
-    return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_video(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
